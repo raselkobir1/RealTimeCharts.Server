@@ -2,7 +2,7 @@
 
 namespace RealTimeCharts.Server.HubConfig
 {
-    public class ChartHub:Hub
+    public class ChartHub : Hub
     {
 
     }
