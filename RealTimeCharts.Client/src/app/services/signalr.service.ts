@@ -9,12 +9,14 @@ export class SignalrService {
   public data?: any[];
   public bradcastedData?: any[];
 
-  constructor() { }
+  constructor(private http: signalR.HttpClient) { }
 
   private hubConnection: any;
   public startConnection = () => {
     this.hubConnection = new signalR.HubConnectionBuilder()
                              .withUrl('https://localhost:5001/chart')
+                             .withAutomaticReconnect()
+                             .configureLogging(signalR.LogLevel.Information)
                              .build()
     this.hubConnection
     .start()
@@ -29,6 +31,8 @@ export class SignalrService {
     });
   }
 
+
+//send chart data client to server
   public broadcastChartData = () => {
     const data = this.data?.map(m => {
       const temp = {
@@ -40,9 +44,19 @@ export class SignalrService {
     this.hubConnection.invoke('broadcastchartdata', data)
     .catch((err:any) => console.error(err));
   }
+//get chart data server to client
   public addBroadcastChartDataListener = () => {
     this.hubConnection.on('broadcastchartdata', (data:any) => {
       this.bradcastedData = data;
+    })
+  }
+  // after reconnect automatically get data from server
+  public afterReconnectAddTransferChartDataListener = () => {
+    this.hubConnection.onreconnected(() => {
+      this.http.get('https://localhost:5001/api/chart')
+      .then((res:any) => {
+        console.log(res);
+      })
     })
   }
 }
