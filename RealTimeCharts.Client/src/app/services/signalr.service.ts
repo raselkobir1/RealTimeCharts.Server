@@ -9,7 +9,7 @@ export class SignalrService {
   public data?: any[];
   public bradcastedData?: any[];
 
-  constructor(private http: signalR.HttpClient) { }
+  constructor() { }
 
   private hubConnection: any;
   public startConnection = () => {
@@ -23,7 +23,7 @@ export class SignalrService {
     .then(() => console.log('Connection started'))
     .catch((err:any) => console.log('Error while starting connection: ' + err))
   }
-
+  //get chart data server to client load event
   public addTransferChartDataListener = () => {
     this.hubConnection.on('transferchartdata', (data:any) => {
       this.data = data;
@@ -44,19 +44,10 @@ export class SignalrService {
     this.hubConnection.invoke('broadcastchartdata', data)
     .catch((err:any) => console.error(err));
   }
-//get chart data server to client
+//get chart data server to client after click chirt.
   public addBroadcastChartDataListener = () => {
     this.hubConnection.on('broadcastchartdata', (data:any) => {
       this.bradcastedData = data;
-    })
-  }
-  // after reconnect automatically get data from server
-  public afterReconnectAddTransferChartDataListener = () => {
-    this.hubConnection.onreconnected(() => {
-      this.http.get('https://localhost:5001/api/chart')
-      .then((res:any) => {
-        console.log(res);
-      })
     })
   }
 }
